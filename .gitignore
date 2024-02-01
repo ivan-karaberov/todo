@@ -1,0 +1,8 @@
+# ide folders
+.idea/
+.vscode/
+
+# not project file
+__pycache__/
+.env
+.*.swp
