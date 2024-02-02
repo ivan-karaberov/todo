@@ -25,3 +25,11 @@ async def get_tasks_list(
     )
     tasks = await session.scalars(stmt)
     return tasks.all()
+
+
+async def delete_task(
+    session: AsyncSession,
+    task: Task
+):
+    await session.delete(task)
+    await session.commit()
