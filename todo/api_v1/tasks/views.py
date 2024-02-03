@@ -48,5 +48,12 @@ async def update_task(
 
 
 @router.delete("/")
-def delete_task():
-    pass
+async def delete_task(
+    task: Task = Depends(task_by_id),
+    session: AsyncSession = Depends(db_helper.session_dependency)
+):
+    await crud.delete_task(
+        session=session,
+        task=task
+    )
+    return "success"
