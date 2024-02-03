@@ -3,6 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import crud
 from core.models import db_helper
+from .dependencies import task_by_id
+from .schemas import Task, TaskUpdatePartial
 
 router = APIRouter()
 
@@ -32,8 +34,17 @@ async def get_tasks_list(
 
 
 @router.patch("/")
-def update_task():
-    pass
+async def update_task(
+    task_update: TaskUpdatePartial,
+    task: Task = Depends(task_by_id),
+    session: AsyncSession = Depends(db_helper.session_dependency)
+):
+    return await crud.update_task(
+        session=session,
+        task=task,
+        task_update=task_update,
+        partial=True
+    )
 
 
 @router.delete("/")
