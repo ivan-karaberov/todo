@@ -28,6 +28,13 @@ async def get_tasks_list(
     return tasks.all()
 
 
+async def get_task_by_id(
+    session: AsyncSession,
+    task_id: int
+) -> Task:
+    return await session.get(Task, task_id)
+
+
 async def update_task(
     session: AsyncSession,
     task: Task,
