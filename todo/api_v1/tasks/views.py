@@ -21,8 +21,14 @@ async def create_task(
 
 
 @router.get("/")
-def get_tasks_list():
-    pass
+async def get_tasks_list(
+    user_id: int,
+    session: AsyncSession = Depends(db_helper.session_dependency)
+):
+    return await crud.get_tasks_list(
+        session=session, 
+        user_id=user_id
+    )
 
 
 @router.patch("/")
