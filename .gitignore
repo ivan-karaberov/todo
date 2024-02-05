@@ -4,5 +4,6 @@
 
 # not project file
 __pycache__/
+certs/
 .env
 .*.swp
