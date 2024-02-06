@@ -8,6 +8,7 @@ class UserCreate(BaseModel):
 class UserSchema(BaseModel):
     model_config = ConfigDict(strict=True)
 
+    id: int
     username: str
     hashed_password: bytes
     is_active: bool = True
