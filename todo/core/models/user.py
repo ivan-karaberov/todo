@@ -11,6 +11,7 @@ if TYPE_CHECKING:
 class User(Base):
     username: Mapped[str] = mapped_column(String(32), unique=True)
     hashed_password: Mapped[bytes] = mapped_column(LargeBinary)
+    refresh_token: Mapped[str | None] = mapped_column(String)
     is_active: Mapped[bool] = mapped_column(
         Boolean,
         default=True,
