@@ -12,8 +12,14 @@ class UserSchema(BaseModel):
     username: str
     hashed_password: bytes
     is_active: bool = True
+    refresh_token: str | None
 
 
 class TokenInfo(BaseModel):
     access_token: str
     token_type: str
+
+
+class TokenPair(BaseModel):
+    access_token: str
+    refresh_token: str

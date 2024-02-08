@@ -1,11 +1,11 @@
 from fastapi import HTTPException, status, Form, Depends
 from fastapi.security import OAuth2PasswordBearer
-from jwt.exceptions import InvalidTokenError
+from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import utils as auth_utils
-from .schemas import UserCreate, UserSchema
+from .schemas import UserCreate, UserSchema, TokenPair
 from core.models import User, db_helper
 
 
@@ -73,10 +73,15 @@ def get_current_token_payload(
 ) -> UserSchema:
     try:
         payload = auth_utils.decode_jwt(token=token)
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="token has expired"
+        )
     except InvalidTokenError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=f"invalid token error {e}"
+            detail=f"invalid token error"
         )
     return payload
 
@@ -103,4 +108,16 @@ async def get_current_active_auth_user(
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="user inactive"
+    )
+
+
+def generate_auth_pair_token(user: UserSchema) -> TokenPair:
+    payload={
+        "sub": user.username
+    }
+    access_token: str = auth_utils.encode_jwt(payload=payload)
+    refresh_token: str = auth_utils.encode_jwt(payload=payload, expire_minutes=43200)
+    return TokenPair(
+       access_token=access_token,
+       refresh_token=refresh_token
     )
