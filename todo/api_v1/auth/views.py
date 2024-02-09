@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import crud, utils as auth_utils
 from core.models import db_helper
-from .schemas import UserCreate, UserSchema, TokenInfo
+from .schemas import UserCreate, UserSchema, TokenPair
 
 router = APIRouter()
 
@@ -18,16 +18,15 @@ async def registration(
     )
 
 
-@router.post("/login", response_model=TokenInfo)
-def auth_user(
-    user: UserSchema = Depends(crud.validate_auth_user)
+@router.post("/login", response_model=TokenPair)
+async def auth_user(
+    user: UserSchema = Depends(crud.validate_auth_user),
+    session: AsyncSession = Depends(db_helper.session_dependency)
 ):
-    jwt_payload = {
-        "sub": user.username,
-        "username": user.username,
-    }
-    access_token = auth_utils.encode_jwt(jwt_payload)
-    return TokenInfo(
-        access_token=access_token,
-        token_type="Bearer"
+    tokens: TokenPair = crud.generate_auth_pair_token(user)
+    await crud.update_refresh_token_db(
+        session=session,
+        user=user,
+        refresh_token=tokens.refresh_token
     )
+    return tokens
