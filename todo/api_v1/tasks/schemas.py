@@ -1,8 +1,10 @@
-from pydantic import BaseModel, ConfigDict
+from typing import Annotated
+
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class TaskBase(BaseModel):
-    title: str
+    title: Annotated[str, Field(min_length=1, max_length=100)]
     body: str
 
 
@@ -15,7 +17,7 @@ class TaskUpdate(TaskCreate):
 
 
 class TaskUpdatePartial(TaskCreate):
-    title: str | None = None
+    title: Annotated[str, Field(min_length=1, max_length=100)] | None  = None
     body: str | None = None
 
 
