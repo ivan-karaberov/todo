@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 
+
 class TaskBase(BaseModel):
     title: str
     body: str

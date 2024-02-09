@@ -6,6 +6,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship, declared_attr
 if TYPE_CHECKING:
     from .user import User
 
+
 class UserRelationMixin:
     _user_id_nullable: bool = False
     _user_id_unique: bool = False

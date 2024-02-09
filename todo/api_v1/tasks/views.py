@@ -18,7 +18,7 @@ async def create_task(
     session: AsyncSession = Depends(db_helper.session_dependency)
 ):
     return await crud.create_task(
-        session=session, 
+        session=session,
         user_id=user.id,
         task_title=task_title
     )
@@ -30,12 +30,12 @@ async def get_tasks_list(
     session: AsyncSession = Depends(db_helper.session_dependency)
 ):
     return await crud.get_tasks_list(
-        session=session, 
+        session=session,
         user_id=user.id
     )
 
 
-@router.patch("/")
+@router.patch("/", status_code=204)
 async def update_task(
     task_update: TaskUpdatePartial,
     task: Task = Depends(task_by_id),
@@ -49,13 +49,12 @@ async def update_task(
     )
 
 
-@router.delete("/")
+@router.delete("/", status_code=204)
 async def delete_task(
     task: Task = Depends(task_by_id),
     session: AsyncSession = Depends(db_helper.session_dependency)
 ):
-    await crud.delete_task(
+    return await crud.delete_task(
         session=session,
         task=task
     )
-    return "success"

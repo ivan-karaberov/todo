@@ -1,7 +1,7 @@
 __all__ = [
-    "Base", 
-    "User", 
-    "Task", 
+    "Base",
+    "User",
+    "Task",
     "db_helper",
     "UserRelationMixin"
 ]
