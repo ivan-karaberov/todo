@@ -1,11 +1,11 @@
 from fastapi import HTTPException, status, Form, Depends
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import utils as auth_utils
-from .schemas import UserCreate, UserSchema, TokenPair
+from .schemas import UserCreate, UserSchema, TokenPair, TokenInfo
 from core.models import User, db_helper
 
 
@@ -121,3 +121,35 @@ def generate_auth_pair_token(user: UserSchema) -> TokenPair:
        access_token=access_token,
        refresh_token=refresh_token
     )
+
+
+async def refresh_token(session:AsyncSession, refresh_token: str) -> TokenPair:
+    payload: dict = get_current_token_payload(refresh_token)
+    user: UserSchema = await get_current_auth_user(payload, session)
+    active_user:UserSchema = await get_current_active_auth_user(user)
+
+    if active_user.refresh_token == refresh_token:
+        tokens: TokenPair = generate_auth_pair_token(user)
+        await update_refresh_token_db(
+            session=session, 
+            user=active_user, 
+            refresh_token=tokens.refresh_token,
+        )
+        return tokens
+    
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="invalid refresh token"
+    )
+
+
+async def update_refresh_token_db(
+    session: AsyncSession,
+    user: UserSchema, 
+    refresh_token: str
+):
+    """ Обновляет поле refresh_token пользователя """
+    
+    user.refresh_token=refresh_token
+    await session.commit()
+    return refresh_token
