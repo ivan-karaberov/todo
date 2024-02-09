@@ -5,34 +5,13 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import utils as auth_utils
-from .schemas import UserCreate, UserSchema, TokenPair
+from .schemas import TokenPair
 from core.models import User, db_helper
+from ..users.schemas import UserCreate, UserSchema
+from ..users.crud import create_user, get_user_by_username
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
-
-
-async def create_user(
-    session: AsyncSession,
-    user_in: UserCreate
-) -> User:
-    user = User(
-        username=user_in.username,
-        hashed_password=auth_utils.hash_password(user_in.password)
-    )
-    session.add(user)
-    await session.commit()
-    return user
-
-
-async def get_user_by_username(
-    session: AsyncSession,
-    username: str
-) -> User:
-    return await session.scalar(
-        select(User)
-        .where(User.username == username)
-    )
 
 
 async def registration(
@@ -49,6 +28,7 @@ async def registration(
             detail="User with this username already exists!"
         )
 
+    user_in.password = auth_utils.hash_password(user_in.password)
     return await create_user(
         session=session,
         user_in=user_in
@@ -126,25 +106,6 @@ async def get_current_active_auth_user(
     )
 
 
-def generate_auth_pair_token(
-    user: UserSchema
-) -> TokenPair:
-    payload = {
-        "sub": user.username
-    }
-    access_token: str = auth_utils.encode_jwt(
-        payload=payload
-    )
-    refresh_token: str = auth_utils.encode_jwt(
-        payload=payload,
-        expire_minutes=43200
-    )
-    return TokenPair(
-       access_token=access_token,
-       refresh_token=refresh_token
-    )
-
-
 async def refresh_token(
     session: AsyncSession,
     refresh_token: str
@@ -154,7 +115,7 @@ async def refresh_token(
     active_user: UserSchema = await get_current_active_auth_user(user)
 
     if active_user.refresh_token == refresh_token:
-        tokens: TokenPair = generate_auth_pair_token(user)
+        tokens: TokenPair = auth_utils.generate_auth_pair_token(user)
         await update_refresh_token_db(
             session=session,
             user=active_user,

@@ -17,7 +17,7 @@ class TaskUpdate(TaskCreate):
 
 
 class TaskUpdatePartial(TaskCreate):
-    title: Annotated[str, Field(min_length=1, max_length=100)] | None  = None
+    title: Annotated[str, Field(min_length=1, max_length=100)] | None = None
     body: str | None = None
 
 

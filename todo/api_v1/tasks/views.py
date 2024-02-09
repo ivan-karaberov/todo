@@ -5,7 +5,7 @@ from . import crud
 from core.models import db_helper
 from .dependencies import task_by_id
 from .schemas import Task, TaskUpdatePartial
-from ..auth.schemas import UserSchema
+from ..users.schemas import UserSchema
 from ..auth.crud import get_current_active_auth_user
 
 router = APIRouter()

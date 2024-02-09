@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from . import crud
 from core.models import db_helper, Task
-from ..auth.schemas import UserSchema
+from ..users.schemas import UserSchema
 from ..auth.crud import get_current_active_auth_user
 
 

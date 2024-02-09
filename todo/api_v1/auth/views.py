@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from . import crud
+from . import crud, utils as auth_utils
 from core.models import db_helper
-from .schemas import UserCreate, UserSchema, TokenPair
+from .schemas import TokenPair
+from ..users.schemas import UserCreate, UserSchema
 
 router = APIRouter()
 
@@ -25,7 +26,7 @@ async def auth_user(
     user: UserSchema = Depends(crud.validate_auth_user),
     session: AsyncSession = Depends(db_helper.session_dependency)
 ):
-    tokens: TokenPair = crud.generate_auth_pair_token(user)
+    tokens: TokenPair = auth_utils.generate_auth_pair_token(user)
     await crud.update_refresh_token_db(
         session=session,
         user=user,

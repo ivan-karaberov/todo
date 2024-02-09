@@ -4,6 +4,8 @@ import bcrypt
 import jwt
 
 from core.config import settings
+from .schemas import TokenPair
+from ..users.schemas import UserSchema
 
 
 def encode_jwt(
@@ -59,4 +61,23 @@ def validate_password(
     return bcrypt.checkpw(
         password=password.encode(),
         hashed_password=hashed_password
+    )
+
+
+def generate_auth_pair_token(
+    user: UserSchema
+) -> TokenPair:
+    payload = {
+        "sub": user.username
+    }
+    access_token: str = encode_jwt(
+        payload=payload
+    )
+    refresh_token: str = encode_jwt(
+        payload=payload,
+        expire_minutes=43200
+    )
+    return TokenPair(
+       access_token=access_token,
+       refresh_token=refresh_token
     )
