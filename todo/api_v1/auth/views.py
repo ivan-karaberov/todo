@@ -30,3 +30,14 @@ async def auth_user(
         refresh_token=tokens.refresh_token
     )
     return tokens
+
+
+@router.post("/refresh", response_model=TokenPair)
+async def refresh_token(
+    refresh_token: str,
+    session: AsyncSession = Depends(db_helper.session_dependency)
+):
+    return await crud.refresh_token(
+        session=session,    
+        refresh_token=refresh_token
+    )
