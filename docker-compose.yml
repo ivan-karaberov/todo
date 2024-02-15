@@ -1,0 +1,22 @@
+version: "3.9"
+services:
+  app:
+    container_name: api
+    build: .
+    command: bash -c "cd todo && alembic upgrade head && python main.py"
+    ports:
+      - "8000:8000"
+    depends_on: 
+      - db
+  
+  db:
+    container_name: db
+    image: postgres:14
+    ports:
+      - "3000:5432"
+    env_file:
+      - todo/.env
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+      - POSTGRES_DB=${DB_NAME}
