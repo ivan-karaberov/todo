@@ -2,15 +2,19 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.models import Task
-from .schemas import TaskUpdate, TaskUpdatePartial
+from .schemas import TaskCreate, TaskUpdate, TaskUpdatePartial
 
 
 async def create_task(
     session: AsyncSession,
     user_id: int,
-    task_title: str
+    task_in: TaskCreate
 ) -> Task:
-    task = Task(title=task_title, user_id=user_id)
+    task = Task(
+        title=task_in.title,
+        body=task_in.body,
+        user_id=user_id
+    )
     session.add(task)
     await session.commit()
     return task

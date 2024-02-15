@@ -9,7 +9,8 @@ class TaskBase(BaseModel):
 
 
 class TaskCreate(TaskBase):
-    pass
+    title: Annotated[str, Field(min_length=1, max_length=100)]
+    body: str | None = None
 
 
 class TaskUpdate(TaskCreate):

@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from . import crud
 from core.models import db_helper
 from .dependencies import task_by_id
-from .schemas import Task, TaskUpdatePartial
+from .schemas import Task, TaskCreate, TaskUpdatePartial
 from ..users.schemas import UserSchema
 from ..auth.crud import get_current_active_auth_user
 
@@ -13,14 +13,14 @@ router = APIRouter()
 
 @router.post("/")
 async def create_task(
-    task_title: str,
+    task_in: TaskCreate,
     user: UserSchema = Depends(get_current_active_auth_user),
     session: AsyncSession = Depends(db_helper.session_dependency)
 ):
     return await crud.create_task(
         session=session,
         user_id=user.id,
-        task_title=task_title
+        task_in=task_in
     )
 
 
